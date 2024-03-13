@@ -10,4 +10,8 @@ use Illuminate\Database\Eloquent\Model;
 class Shorten extends Model
 {
     use HasFactory, AutoFill, HashId;
+
+    public function user(){
+        return $this->belongsTo('App\Models\User');
+    }
 }

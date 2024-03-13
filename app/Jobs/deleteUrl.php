@@ -11,11 +11,12 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Storage;
 
-class createUrl implements ShouldQueue
+class deleteUrl implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $model;
+
     /**
      * Create a new job instance.
      *
@@ -33,26 +34,10 @@ class createUrl implements ShouldQueue
      */
     public function handle()
     {
-        $filename = 'urls/'. $this->model->code . "/index.html";
-        $url = $this->model->url;
+        $folder = 'urls/'. $this->model->code;
 
-        $web = new \Spekulatius\PHPScraper\PHPScraper;
+        Storage::disk(config('app.url_disk'))->deleteDirectory($folder);
 
-        $web->go($url);
-
-        $title = $web->title;
-        $description = $web->description;
-        $image = $web->image;
-
-        if(!$image){
-            $image = $web->openGraph['og:image'];
-        }
-
-        $canonical = $web->canonical ?? $url;
-
-        $html = view('shortner', compact('url', 'title', 'description', 'image', 'canonical'))->render();
-
-        Storage::disk(config('app.url_disk'))->put($filename, $html, 'public');
-
+        $this->model->delete();
     }
 }

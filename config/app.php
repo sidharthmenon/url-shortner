@@ -58,6 +58,8 @@ return [
 
     'asset_url' => env('ASSET_URL'),
 
+    'url_disk' => env('URL_DISK', 'public'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Timezone

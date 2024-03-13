@@ -3,6 +3,7 @@
 namespace App\Http\Livewire\Admin\Shorten;
 
 use App\Http\Livewire\BasePage;
+use App\Jobs\deleteUrl;
 use App\Models\Shorten;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Columns\Layout\Split;
@@ -34,7 +35,7 @@ class ShortenPage extends BasePage
   }
 
   protected function deleteItem(Shorten $record){
-    $record->delete();
+    dispatch(new deleteUrl($record));
   }
 
   protected function getTableColumns(): array
@@ -43,13 +44,20 @@ class ShortenPage extends BasePage
       
         TextColumn::make('code')->searchable()->sortable()->label('Short Code'),
         TextColumn::make('url')->searchable()->sortable()->wrap(),
+        TextColumn::make('user.name')->toggleable(true, true),
       
     ];
   }
 
   protected function getTableQuery(): Builder
   {
-      return Shorten::query();   
+
+      if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('super')){
+        return Shorten::query();   
+      }
+      
+      return Shorten::query()->where('user_id', auth()->user()->id);
+
   }
 
 }

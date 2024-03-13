@@ -32,7 +32,8 @@ class ShortenForm extends ModalForm {
         Toggle::make('generate')->label('Edit Short Code')->reactive(),
         TextInput::make('code')->label('Short Code')->hidden(function(callable $get){
           return $get('generate') != true;
-        }),
+        })->unique('shortens', 'code', $this->model)->required(),
+        
       ];
   }
 
