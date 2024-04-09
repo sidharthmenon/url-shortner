@@ -45,7 +45,7 @@ class createUrl implements ShouldQueue
         $image = $web->image;
 
         if(!$image){
-            $image = $web->openGraph['og:image'];
+            $image = $web->openGraph['og:image'] ?? "";
         }
 
         $canonical = $web->canonical ?? $url;
