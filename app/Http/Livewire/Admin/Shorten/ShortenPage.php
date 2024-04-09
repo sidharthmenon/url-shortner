@@ -6,6 +6,7 @@ use App\Http\Livewire\BasePage;
 use App\Jobs\deleteUrl;
 use App\Models\Shorten;
 use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\TagsColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -38,11 +39,41 @@ class ShortenPage extends BasePage
     dispatch(new deleteUrl($record));
   }
 
+  protected function getTableActions(): array
+  {
+      return [
+          ActionGroup::make([
+              Action::make('delete')
+                  ->action(function($record){
+                      $this->deleteItem($record);
+                  })
+                  ->visible(function($record){
+                    if(auth()->user()->can($this->permission.'delete'))
+                    {
+                      if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('super')){
+                        return true;
+                      }
+                      else{
+                        return $record->user_id == auth()->user()->id;
+                      }
+                    }
+                    else{
+                      return false;
+                    }
+                  })->icon('heroicon-o-trash')->color('danger')
+                  ->requiresConfirmation(),
+          ])
+      ];
+  }
+
   protected function getTableColumns(): array
   {
     return [
       
-        TextColumn::make('code')->searchable()->sortable()->label('Short Code'),
+        TextColumn::make('code')->searchable()->sortable()->label('Short Code')
+          ->copyableState(fn (string $state): string => "https://ksum.in/{$state}")
+          ->copyable()
+          ->copyMessage('Link copied'),
         TextColumn::make('url')->searchable()->sortable()->wrap(),
         TextColumn::make('user.name')->toggleable(true, true),
       
@@ -51,13 +82,7 @@ class ShortenPage extends BasePage
 
   protected function getTableQuery(): Builder
   {
-
-      if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('super')){
-        return Shorten::query();   
-      }
-      
-      return Shorten::query()->where('user_id', auth()->user()->id);
-
+    return Shorten::query();   
   }
 
 }

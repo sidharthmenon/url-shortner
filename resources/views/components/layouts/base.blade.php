@@ -12,6 +12,7 @@
     <style>[x-cloak] { display: none !important; }</style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
