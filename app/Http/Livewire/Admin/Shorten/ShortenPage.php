@@ -69,12 +69,11 @@ class ShortenPage extends BasePage
   protected function getTableColumns(): array
   {
     return [
-      
-        TextColumn::make('code')->searchable()->sortable()->label('Short Code')
-          ->copyableState(fn (string $state): string => "https://ksum.in/{$state}")
-          ->copyable()
-          ->copyMessage('Link copied'),
-        TextColumn::make('url')->searchable()->sortable()->wrap(),
+        TextColumn::make('id')->label('Url')->getStateUsing(function($record){
+          return "https://ksum.in/".$record->code;
+        })->copyable()->copyMessage('Link copied'),
+        TextColumn::make('code')->searchable()->sortable()->label('Short Code')->toggleable(true, true),
+        TextColumn::make('url')->label('Long Url')->searchable()->sortable()->wrap(),
         TextColumn::make('user.name')->toggleable(true, true),
       
     ];
