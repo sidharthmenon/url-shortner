@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-  <head>
-    <meta charset="utf-8">
+    <head>
+        <meta charset="utf-8" />
 
-    <meta name="application-name" content="{{ config('app.name') }}">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="application-name" content="{{ config('app.name') }}" />
+        <meta name="csrf-token" content="{{ csrf_token() }}" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="shortcut icon" type="image/x-icon" href="/favicon.png">
 
-    <title>{{ config('app.name') }}</title>
+        <title>{{ config('app.name') }}</title>
 
-    <style>[x-cloak] { display: none !important; }</style>
+        <style>
+            [x-cloak] {
+                display: none !important;
+            }
+        </style>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons@latest/iconfont/tabler-icons.min.css">
-    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/dist/tippy.css" />
+        @filamentStyles
+        @vite('resources/css/app.css')
+    </head>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    @livewireStyles
-    @livewireScripts
-    @stack('scripts')
-  </head>
+    <body class="antialiased overflow-x-hidden">
 
-  <body class="antialiased">
-      {{ $slot }}
+        {{ $slot }}
 
-      @livewire('notifications')
-      @livewire('livewire-ui-modal')
+        @livewire('notifications')
 
-      <script src="https://cdn.jsdelivr.net/npm/@tabler/icons@1.74.0/icons-react/dist/index.umd.min.js"></script>
-
-  </body>
+        @filamentScripts
+        @vite('resources/js/app.js')
+    </body>
 </html>

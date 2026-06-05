@@ -3,17 +3,14 @@
 namespace App\Jobs;
 
 use App\Models\Shorten;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
+use Kovah\HtmlMeta\Facades\HtmlMeta;
 
 class createUrl implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public $model;
     /**
@@ -36,23 +33,18 @@ class createUrl implements ShouldQueue
         $filename = 'urls/'. $this->model->code . "/index.html";
         $url = $this->model->url;
 
-        $web = new \Spekulatius\PHPScraper\PHPScraper;
+        $metaTags = HtmlMeta::forUrl($url)->getMeta();
 
-        $web->go($url);
+        $title = array_key_exists('title', $metaTags) ? $metaTags['title'] : "";
+        $description = array_key_exists('description', $metaTags) ? $metaTags['description'] : "";
+        $image = array_key_exists('og:image', $metaTags) ? $metaTags['og:image'] : "";
 
-        $title = $web->title;
-        $description = $web->description;
-        $image = $web->image;
+        $canonical = $url;
 
-        if(!$image){
-            $image = $web->openGraph['og:image'] ?? "";
-        }
-
-        $canonical = $web->canonical ?? $url;
-
-        $html = view('shortner', compact('url', 'title', 'description', 'image', 'canonical'))->render();
+        $html = view('shorten', compact('url', 'title', 'description', 'image', 'canonical'))->render();
 
         Storage::disk(config('app.url_disk'))->put($filename, $html, 'public');
 
     }
+
 }

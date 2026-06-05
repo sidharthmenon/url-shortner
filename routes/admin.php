@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Livewire\Admin\Role\RolePage;
-use App\Http\Livewire\Admin\Shorten\ShortenPage;
-use App\Http\Livewire\Admin\User\UserPage;
+use App\Livewire\Admin\Role\RolePage;
+use App\Livewire\Admin\Shorten\ShortenPage;
+use App\Livewire\Admin\User\UserPage;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/users', UserPage::class)->middleware('can:admin:users:view')->name('users');

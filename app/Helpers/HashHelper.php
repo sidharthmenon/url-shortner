@@ -22,5 +22,5 @@ class HashHelper {
     $decoded = $hashid->decode($value);
     return count($decoded) ? $decoded[0] : null;
   }
-  
+
 }

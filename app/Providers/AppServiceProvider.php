@@ -2,32 +2,26 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
-    public function register()
+    public function register(): void
     {
         //
     }
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
-    public function boot()
+    public function boot(): void
     {
-        \Spatie\Flash\Flash::levels([
-            'success' => 'bg-emerald-500',
-            'warning' => 'bg-yellow-400',
-            'error' => 'bg-red-500',
-            'info' => 'bg-blue-500'
-        ]);
+        Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+            $event->extendSocialite('uid', \SocialiteProviders\LaravelPassport\Provider::class);
+        });
     }
 }

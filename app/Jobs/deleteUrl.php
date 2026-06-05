@@ -3,17 +3,13 @@
 namespace App\Jobs;
 
 use App\Models\Shorten;
-use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
+use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
 
 class deleteUrl implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Queueable;
 
     public $model;
 
@@ -40,4 +36,5 @@ class deleteUrl implements ShouldQueue
 
         $this->model->delete();
     }
+
 }

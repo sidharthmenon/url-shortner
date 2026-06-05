@@ -10,7 +10,8 @@ $roles = [
     'users' => $abilities,
     'roles' => $abilities,
     'urls' => $abilities,
-  ]
+  ],
+
 ];
 
 $permissions = [];

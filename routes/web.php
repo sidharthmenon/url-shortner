@@ -1,24 +1,22 @@
 <?php
 
-use App\Http\Controllers\Auth\LoginController;
-use App\Models\Shorten;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Controllers\Auth\LoginController;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
+Route::redirect('/', 'home');
 
-Route::redirect('/', 'login');
 
-Route::redirect('home', 'admin/urls');
+Route::middleware('auth')->get('home', function(){
+
+//   if(auth()->user()->can('admin:pages:view')){
+//     return redirect()->route('admin.pages');
+//   }
+
+//   if(auth()->user()->can('admin:grievance:view')){
+//     return redirect()->route('admin.grievance');
+//   }
+
+  return redirect()->route('admin.urls');
+})->name('home');
 
 Route::get('logout', [LoginController::class, 'logout']);

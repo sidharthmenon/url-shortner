@@ -22,9 +22,9 @@ class UserSeeder extends Seeder
         );
 
         $user = User::firstOrNew();
-        $user->name = "Admin";
-        $user->email = "admin@portal.in";
-        $user->password = Hash::make('admin');
+        $user->name = "Sidharth";
+        $user->email = "sidharth@startupmission.in";
+        $user->password = Hash::make('sidharth');
         $user->save();
 
         $user->assignRole($super);

@@ -1,14 +1,22 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
+use App\Livewire\Auth\ForgotPage;
+use App\Livewire\Auth\LoginPage;
+use App\Livewire\Auth\ResetPage;
+use Illuminate\Support\Facades\Route;
+use Laravel\Socialite\Facades\Socialite;
+
+Route::get('login', LoginPage::class)->name('login');
+Route::get('password/forgot', ForgotPage::class)->name('password.forgot');
+Route::get('password/reset', ResetPage::class)->name('password.reset');
 
 
-Route::get('login', [LoginController::class, 'login_page'])->name('login');
-Route::post('login', [LoginController::class, 'authenticate']);
+Route::get('login/uid', function(){
+  return Socialite::driver('uid')->redirect();
+});
 
-Route::get('password/forgot', [LoginController::class, 'forgot_page'])->name('password.forgot');
-Route::post('password/forgot', [LoginController::class, 'send_reset_link']);
+Route::get('uid/callback', function(){
+  $user = Socialite::driver('uid')->user();
 
-Route::get('password/reset', [LoginController::class, 'reset_page'])->name('password.reset');
-Route::post('password/reset', [LoginController::class, 'reset_password']);
+});
