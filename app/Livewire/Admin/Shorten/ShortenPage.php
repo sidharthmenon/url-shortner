@@ -19,10 +19,12 @@ use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Schemas\Components\Grid;
 use Filament\Support\Enums\IconPosition;
+use Filament\Support\Enums\Width;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Enums\RecordActionsPosition;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -44,11 +46,10 @@ class ShortenPage extends Component implements HasTable, HasForms, HasActions
                 })
                 ->copyable()->copyMessage('Link copied')
                 ->icon(Heroicon::OutlinedClipboardDocument)
-                ->iconPosition(IconPosition::After)
-                ,
+                ->iconPosition(IconPosition::After),
+                TextColumn::make('user.name')->toggleable(true, true),
                 TextColumn::make('code')->searchable()->label('Short Code')->toggleable(true, true),
                 TextColumn::make('url')->label('Long Url')->searchable()->wrap(),
-                TextColumn::make('user.name')->toggleable(true, true),
             ])
             ->headerActions([
                 CreateAction::make()
@@ -82,6 +83,10 @@ class ShortenPage extends Component implements HasTable, HasForms, HasActions
                 })->default(true)  
             ])
             ->recordActions([
+                Action::make('qrcode')->modalContent(function($record){
+                    return view('qrcode', ['url' => $record->link, 'code' => $record->code]);
+                })->icon(Heroicon::QrCode)
+                ->modalSubmitAction(false)->modalCancelAction(false)->modalWidth(Width::ExtraLarge),
                 Action::make('delete')
                     ->action(function($record){
                         dispatch(new deleteUrl($record));
@@ -101,7 +106,7 @@ class ShortenPage extends Component implements HasTable, HasForms, HasActions
                             return false;
                         }
                     }),
-            ])
+            ], RecordActionsPosition::BeforeCells)
         ;
     }
 

@@ -15,4 +15,8 @@ class Shorten extends Model
     public function user(){
         return $this->belongsTo('App\Models\User');
     }
+
+    public function getLinkAttribute(){
+        return "https://ksum.in/".$this->code;
+    }
 }
