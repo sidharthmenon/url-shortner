@@ -16,7 +16,7 @@ class SnapshotAndPruneShortLinkTracking implements ShouldQueue
 
     public function __construct()
     {
-        $this->onQueue((string) config('services.short_links.queue', 'short-link-analytics'));
+        $this->onQueue((string) config('services.short_links.queue', 'analytics'));
     }
 
     public function handle(): void
