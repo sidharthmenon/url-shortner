@@ -16,6 +16,7 @@ class ProcessShortLinkTracking implements ShouldQueue
         public array $payload,
         public array $requestMeta,
     ) {
+        $this->onQueue((string) config('services.short_links.queue', 'analytics'));
     }
 
     public function handle(ShortLinkAnalyticsService $analytics): void

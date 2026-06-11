@@ -50,6 +50,7 @@ return [
 
     'short_links' => [
         'tracking_endpoint' => env('SHORT_LINK_TRACKING_ENDPOINT', rtrim(env('APP_URL', 'http://localhost'), '/') . '/api/short-links/track'),
+        'queue' => env('SHORT_LINK_QUEUE', 'analytics'),
     ],
 
 ];

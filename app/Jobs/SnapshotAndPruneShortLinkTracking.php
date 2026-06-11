@@ -14,6 +14,11 @@ class SnapshotAndPruneShortLinkTracking implements ShouldQueue
 {
     use Queueable;
 
+    public function __construct()
+    {
+        $this->onQueue((string) config('services.short_links.queue', 'short-link-analytics'));
+    }
+
     public function handle(): void
     {
         $cutoffDate = now()->subDays(30);
