@@ -25,6 +25,17 @@ services:
             - pgsql
             - valkey
             - mailpit
+    short-links-nginx:
+        image: 'nginx:1.27-alpine'
+        ports:
+            - '${SHORT_LINKS_PORT:-8080}:80'
+        volumes:
+            - './storage/app/public/urls:/usr/share/nginx/html:ro'
+            - './docker/nginx/short-links.conf:/etc/nginx/conf.d/default.conf:ro'
+        networks:
+            - sail
+        depends_on:
+            - laravel.test
     pgsql:
         image: 'postgres:18-alpine'
         ports:
