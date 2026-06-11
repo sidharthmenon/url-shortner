@@ -86,7 +86,7 @@ class ShortenPage extends Component implements HasTable, HasForms, HasActions
                     ->modalContent(function (Shorten $record) {
                         return view('analytics', [
                             'record' => $record,
-                            'analytics' => app(ShortLinkAnalyticsService::class)->buildReport($record),
+                            'analytics' => app(ShortLinkAnalyticsService::class)->buildReport($record, 14),
                         ]);
                     })
                     ->modalSubmitAction(false)

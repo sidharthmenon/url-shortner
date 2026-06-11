@@ -1,5 +1,7 @@
 @php
     $summary = $analytics['summary'];
+    $trend = collect($analytics['trend'])->take(-14)->values();
+    $trendMax = max(1, (int) $trend->max('total'));
 @endphp
 
 <div class="space-y-6">
@@ -23,9 +25,9 @@
 
     <x-filament::section heading="Clicks Trend" description="hits over the last 14 days.">
         <div class="flex min-h-52 items-end gap-2 overflow-x-auto pb-2">
-            @foreach ($analytics['trend'] as $point)
+            @foreach ($trend as $point)
                 @php
-                    $height = max(10, (int) round(($point['total'] / $analytics['trend_max']) * 180));
+                    $height = max(10, (int) round(($point['total'] / $trendMax) * 180));
                 @endphp
                 <div class="flex min-w-10 flex-1 flex-col items-center gap-2">
                     <div class="w-full rounded-t-md bg-primary-600" style="height: {{ $height }}px"></div>
