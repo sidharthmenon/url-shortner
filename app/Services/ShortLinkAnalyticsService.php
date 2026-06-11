@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Shorten;
 use App\Models\ShortenTrackingEvent;
-use App\Models\ShortenTrackingSnapshot;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -42,47 +41,19 @@ class ShortLinkAnalyticsService
         ]);
     }
 
-    public function buildReport(Shorten $shorten, int $days = 14): array
+    public function buildReport(Shorten $shorten): array
     {
-        $days = max(1, $days);
+        $days = 14;
         $since = now()->subDays($days - 1)->startOfDay();
-        $rawEventStart = now()->subDays(29)->startOfDay();
-        $rawRangeStart = $since->greaterThan($rawEventStart) ? $since->copy() : $rawEventStart->copy();
-        $snapshotMonthCutoff = $rawEventStart->copy()->startOfMonth();
 
         $events = $shorten->trackingEvents()
-            ->where('clicked_at', '>=', $rawRangeStart)
+            ->where('clicked_at', '>=', $since)
             ->orderBy('clicked_at')
             ->get();
 
-        $snapshots = $shorten->trackingSnapshots()
-            ->where('snapshot_date', '>=', $since->copy()->startOfMonth()->toDateString())
-            ->where('snapshot_date', '<', $snapshotMonthCutoff->toDateString())
-            ->get();
-
-        $summarySnapshots = $snapshots->where('dimension_type', 'summary');
-
-        $summary = [
-            'total_clicks' => $events->count() + (int) $summarySnapshots->sum('total_clicks'),
-            'unique_visitors' => $this->countUniqueVisitors($events) + (int) $summarySnapshots->sum('unique_visitors'),
-            'period_label' => sprintf('Last %d days', $days),
-        ];
-
-        $snapshotTrend = $summarySnapshots
-            ->sortBy('snapshot_date')
-            ->map(function (ShortenTrackingSnapshot $snapshot): array {
-                return [
-                    'date' => $snapshot->snapshot_date->toDateString(),
-                    'label' => $snapshot->snapshot_date->format('M Y'),
-                    'total' => (int) $snapshot->total_clicks,
-                    'unique' => (int) $snapshot->unique_visitors,
-                ];
-            })
-            ->values();
-
-        $rawTrend = collect(range(0, now()->diffInDays($rawRangeStart)))
-            ->map(function (int $offset) use ($events, $rawRangeStart): array {
-                $date = $rawRangeStart->copy()->addDays($offset);
+        $trend = collect(range(0, $days - 1))
+            ->map(function (int $offset) use ($events, $since): array {
+                $date = $since->copy()->addDays($offset);
                 $dateKey = $date->toDateString();
                 $dayEvents = $events->filter(fn (ShortenTrackingEvent $event) => $event->clicked_at->toDateString() === $dateKey);
 
@@ -95,32 +66,19 @@ class ShortLinkAnalyticsService
             })
             ->values();
 
-        $trend = $snapshotTrend->concat($rawTrend)->values();
-
         return [
-            'summary' => $summary,
+            'summary' => [
+                'total_clicks' => $events->count(),
+                'unique_visitors' => $this->countUniqueVisitors($events),
+                'period_label' => 'Last 14 days',
+            ],
             'trend' => $trend,
             'trend_max' => max(1, (int) $trend->max('total')),
-            'top_referrers' => $this->mergeBreakdowns(
-                $this->topBreakdown($events, 'referrer_host'),
-                $this->snapshotBreakdown($snapshots, 'referrer_host')
-            ),
-            'top_countries' => $this->mergeBreakdowns(
-                $this->topBreakdown($events, 'country'),
-                $this->snapshotBreakdown($snapshots, 'country')
-            ),
-            'top_browsers' => $this->mergeBreakdowns(
-                $this->topBreakdown($events, 'browser'),
-                $this->snapshotBreakdown($snapshots, 'browser')
-            ),
-            'top_devices' => $this->mergeBreakdowns(
-                $this->topBreakdown($events, 'device_type'),
-                $this->snapshotBreakdown($snapshots, 'device_type')
-            ),
-            'top_campaigns' => $this->mergeBreakdowns(
-                $this->topBreakdown($events, 'utm_campaign'),
-                $this->snapshotBreakdown($snapshots, 'utm_campaign')
-            ),
+            'top_referrers' => $this->topBreakdown($events, 'referrer_host'),
+            'top_countries' => $this->topBreakdown($events, 'country'),
+            'top_browsers' => $this->topBreakdown($events, 'browser'),
+            'top_devices' => $this->topBreakdown($events, 'device_type'),
+            'top_campaigns' => $this->topBreakdown($events, 'utm_campaign'),
         ];
     }
 
@@ -147,32 +105,6 @@ class ShortLinkAnalyticsService
             ->map(fn (Collection $group, string $label) => [
                 'label' => $label,
                 'total' => $group->count(),
-            ])
-            ->sortByDesc('total')
-            ->take($limit)
-            ->values();
-    }
-
-    protected function snapshotBreakdown(Collection $snapshots, string $field): Collection
-    {
-        return $snapshots
-            ->where('dimension_type', $field)
-            ->groupBy(fn (ShortenTrackingSnapshot $snapshot) => $snapshot->dimension_value ?: 'Unknown')
-            ->map(fn (Collection $group, string $label) => [
-                'label' => $label,
-                'total' => (int) $group->sum('total_clicks'),
-            ])
-            ->values();
-    }
-
-    protected function mergeBreakdowns(Collection $raw, Collection $snapshots, int $limit = 5): Collection
-    {
-        return $raw
-            ->concat($snapshots)
-            ->groupBy('label')
-            ->map(fn (Collection $group, string $label) => [
-                'label' => $label,
-                'total' => (int) $group->sum('total'),
             ])
             ->sortByDesc('total')
             ->take($limit)

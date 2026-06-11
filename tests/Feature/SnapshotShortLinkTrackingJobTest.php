@@ -156,12 +156,12 @@ class SnapshotShortLinkTrackingJobTest extends TestCase
             'utm_campaign' => null,
         ]);
 
-        $report = app(ShortLinkAnalyticsService::class)->buildReport($shorten, 90);
+        $report = app(ShortLinkAnalyticsService::class)->buildReport($shorten);
 
-        $this->assertSame(5, $report['summary']['total_clicks']);
-        $this->assertSame(4, $report['summary']['unique_visitors']);
-        $this->assertSame('IN', $report['top_countries']->first()['label']);
-        $this->assertSame(4, $report['top_countries']->first()['total']);
-        $this->assertSame('May 2026', $report['trend']->first()['label']);
+        $this->assertSame(2, $report['summary']['total_clicks']);
+        $this->assertSame(2, $report['summary']['unique_visitors']);
+        $this->assertSame('US', $report['top_countries']->first()['label']);
+        $this->assertSame(2, $report['top_countries']->first()['total']);
+        $this->assertSame(14, $report['trend']->count());
     }
 }
